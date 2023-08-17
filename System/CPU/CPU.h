@@ -6,8 +6,16 @@
 #define INC_6502_EMULATOR_CPU_H
 
 
-class CPU {
+#include <memory>
+#include "Register.h"
 
+class CPU {
+private:
+    std::unique_ptr<Register> register;
+
+public:
+    CPU();
+    ~CPU();
 };
 
 
