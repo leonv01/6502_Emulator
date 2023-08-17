@@ -8,5 +8,7 @@ add_executable(6502_Emulator main.cpp
         System/CPU/CPU.h
         System/CPU/Register.cpp
         System/CPU/Register.h
-        System/Memory.cpp
-        System/Memory.h)
+        System/Memory/Memory.cpp
+        System/Memory/Memory.h
+        System/CPU/Instructions.cpp
+)
