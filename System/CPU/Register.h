@@ -26,6 +26,16 @@ public:
         uint8_t _; // Unused
         uint8_t V; // Overflow Flag
         uint8_t N; // Negative Flag
+
+        // If value is Zero, Zero-Flag is set
+        void setZ(uint8_t value){
+            Z = value == 0x00 ? 0x01 : 0x00;
+        }
+
+        // If value is Negative, Negative-Flag is set
+        void setN(uint8_t value){
+            N = value & 0x80;
+        }
     } Flags{};
 
     Register();
