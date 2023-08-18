@@ -2,6 +2,7 @@
 // Created by leonv on 17/08/2023.
 //
 
+#include <iostream>
 #include "CPU.h"
 
 CPU::CPU() {
@@ -36,6 +37,7 @@ void CPU::parseOpcode() {
             handleGroupOneInstructions();
             break;
         case 0x02:
+            handleGroupTwoInstructions();
             break;
         case 0x03:
             break;
@@ -78,22 +80,52 @@ void CPU::handleGroupOneInstructions() {
     }
 }
 
+void CPU::handleGroupTwoInstructions() {
+    uint8_t aaa = (currentOpcode & 0xE0) >> 5;
+    uint8_t bbb = (currentOpcode & 0x1C) >> 2;
+
+    switch(aaa){
+        case 0x00:
+            ORA(bbb);
+            break;
+        case 0x01:
+            AND(bbb);
+            break;
+        case 0x02:
+            EOR(bbb);
+            break;
+        case 0x03:
+            ADC(bbb);
+            break;
+        case 0x04:
+            STA(bbb);
+            break;
+        case 0x05:
+            LDA(bbb);
+            break;
+        case 0x06:
+            CMP(bbb);
+            break;
+        case 0x07:
+            SBC(bbb);
+            break;
+        default:
+            break;
+    }
+}
+
 uint8_t CPU::readNextByte() {
     uint8_t byte = memory->readByte(reg->PC);
     reg->PC++;
     return byte;
 }
 
-uint16_t CPU::readNextWord() {
-    uint8_t lowByte = readNextByte();
-    uint8_t highByte = readNextByte();
-    return static_cast<uint16_t>((highByte << 8) | lowByte);
+
+
+void CPU::printStatus() {
+    std::cout << reg->toString();
 }
 
-uint16_t CPU::indirectAddressing(uint8_t value, uint8_t reg) {
-    uint16_t indirectAddress = (memory->readByte(value + reg)
-            + (memory->readByte(value + reg + 1) << 8));
-    return 0;
-}
+
 
 
