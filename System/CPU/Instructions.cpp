@@ -621,16 +621,20 @@ void CPU::ASL(uint8_t bbb){
     uint8_t value;
     uint8_t zeroPageAddress;
 
+    uint16_t address;
+    uint16_t effectiveAddress;
     switch(bbb){
+
+            // immediate
         case 0x00:
             value = readNextByte();
 
             reg->Flags.C = (value & 0x80);
             value <<= 1;
             reg->A = value;
-            reg->Flags.setN(reg->A);
-            reg->Flags.setZ(reg->A);
             break;
+
+            // zero page
         case 0x01:
             zeroPageAddress = readNextByte();
             value = memory->readByte(zeroPageAddress);
@@ -639,22 +643,140 @@ void CPU::ASL(uint8_t bbb){
             value <<= 1;
 
             memory->writeByte(value, zeroPageAddress);
-            reg->Flags.setZ(value);
-            reg->Flags.setN(value);
             break;
+
+            // accumulator
         case 0x02:
+            value = reg->A;
+            reg->Flags.C = (value & 0x80);
+            value <<= 1;
+            reg->A = value;
             break;
+
+            // absolute
         case 0x03:
+            address = readNextWord();
+            value = memory->readByte(address);
+            reg->Flags.C = (value & 0x80);
+            value <<= 1;
+            memory->writeByte(value, address);
             break;
+
+            // zero page, X
         case 0x05:
+            zeroPageAddress = readNextByte();
+            effectiveAddress = (zeroPageAddress + reg->X) & 0xFF;
+            value = memory->readByte(effectiveAddress);
+
+            reg->Flags.C = (value & 0x80);
+            value <<= 1;
+            memory->writeByte(value, effectiveAddress);
             break;
+
+            // absolute, X
         case 0x07:
+            address = readNextWord();
+            effectiveAddress = (address + reg->X);
+            value = memory->readByte(effectiveAddress);
+
+            reg->Flags.C = (value & 0x80);
+            value <<= 1;
+            memory->writeByte(value, effectiveAddress);
             break;
         default:
             return;
     }
+    reg->Flags.setN(value);
+    reg->Flags.setZ(value);
 }
-void ROL(uint8_t bbb);
+
+/*
+ * Rotate Left
+ * Flags affected: N, Z, C
+ * Z: Is set when result in accumulator is 0
+ * C: Stores bit 7 before shift
+ * N: Is set when the result in the accumulator has bit 7 set
+ */
+void CPU::ROL(uint8_t bbb){
+    uint8_t value;
+    uint8_t zeroPageAddress;
+    uint8_t carry;
+
+    uint16_t address;
+    uint16_t effectiveAddress;
+    switch(bbb){
+
+        // immediate
+        case 0x00:
+            value = readNextByte();
+
+            carry = reg->Flags.C;
+            reg->Flags.C = (value & 0x80);
+            value = (value << 1) | carry;
+
+            reg->A = value;
+            break;
+
+            // zero page
+        case 0x01:
+            zeroPageAddress = readNextByte();
+            value = memory->readByte(zeroPageAddress);
+
+            carry = reg->Flags.C;
+            reg->Flags.C = (value & 0x80);
+            value = (value << 1) | carry;
+
+            memory->writeByte(value, zeroPageAddress);
+            break;
+
+            // accumulator
+        case 0x02:
+            value = reg->A;
+            carry = reg->Flags.C;
+            reg->Flags.C = (value & 0x80);
+            value = (value << 1) | carry;
+            reg->A = value;
+            break;
+
+            // absolute
+        case 0x03:
+            address = readNextWord();
+            value = memory->readByte(address);
+            carry = reg->Flags.C;
+            reg->Flags.C = (value & 0x80);
+            value = (value << 1) | carry;
+            memory->writeByte(value, address);
+            break;
+
+            // zero page, X
+        case 0x05:
+            zeroPageAddress = readNextByte();
+            effectiveAddress = (zeroPageAddress + reg->X) & 0xFF;
+            value = memory->readByte(effectiveAddress);
+
+            carry = reg->Flags.C;
+            reg->Flags.C = (value & 0x80);
+            value = (value << 1) | carry;
+            memory->writeByte(value, effectiveAddress);
+            break;
+
+            // absolute, X
+        case 0x07:
+            address = readNextWord();
+            effectiveAddress = (address + reg->X);
+            value = memory->readByte(effectiveAddress);
+            carry = reg->Flags.C;
+
+            reg->Flags.C = (value & 0x80);
+            value = (value << 1) | carry;
+            memory->writeByte(value, effectiveAddress);
+            break;
+        default:
+            return;
+    }
+    reg->Flags.setN(value);
+    reg->Flags.setZ(value);
+}
 void LSR(uint8_t bbb);
 void ROR(uint8_t bbb);
 void STX(uint8_t bbb);
