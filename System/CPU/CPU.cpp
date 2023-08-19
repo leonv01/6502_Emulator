@@ -9,14 +9,15 @@ CPU::CPU() {
     currentOpcode = 0;
     reg = new Register();
     memory = new Memory();
-    opcodeTable = {
-            {0x01, std::bind(&CPU::handleGroupOneInstructions, this)}
-    };
+    instructions = std::unordered_map<uint8_t, std::function<void()>>(256);
+    defineInstructions();
 }
 CPU::CPU(Memory *memory) {
     currentOpcode = 0;
     reg = new Register();
     this->memory = memory;
+    instructions = std::unordered_map<uint8_t, std::function<void()>>(256);
+    defineInstructions();
 }
 
 CPU::~CPU(){
@@ -25,7 +26,7 @@ CPU::~CPU(){
 
 void CPU::cpuStep() {
     currentOpcode = readNextByte();
-    parseOpcode();
+    instructions[currentOpcode]();
 }
 
 void CPU::parseOpcode() {
@@ -86,28 +87,28 @@ void CPU::handleGroupTwoInstructions() {
 
     switch(aaa){
         case 0x00:
-            ORA(bbb);
+            ASL(bbb);
             break;
         case 0x01:
-            AND(bbb);
+            ROL(bbb);
             break;
         case 0x02:
-            EOR(bbb);
+            LSR(bbb);
             break;
         case 0x03:
-            ADC(bbb);
+            ROR(bbb);
             break;
         case 0x04:
-            STA(bbb);
+            STX(bbb);
             break;
         case 0x05:
-            LDA(bbb);
+            LDX(bbb);
             break;
         case 0x06:
-            CMP(bbb);
+            DEC(bbb);
             break;
         case 0x07:
-            SBC(bbb);
+            INC(bbb);
             break;
         default:
             break;
@@ -120,11 +121,20 @@ uint8_t CPU::readNextByte() {
     return byte;
 }
 
+uint16_t CPU::readNextWord() {
+    uint8_t lowByte = readNextByte();
+    uint8_t highByte = readNextByte();
+    return static_cast<uint16_t>((highByte << 8) | lowByte);
+}
 
 
 void CPU::printStatus() {
     std::cout << reg->toString();
 }
+
+
+
+
 
 
 
