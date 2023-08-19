@@ -38,6 +38,21 @@ public:
         void inline setN(uint8_t value){
             N = value & 0x80;
         }
+
+        uint8_t getStatus() const {
+            return ((C << 7) | (Z << 6) | (I << 5) | (D << 4) | (B << 3) | (_ << 2) | (V << 1) | N);
+        }
+
+        void setStatus(uint8_t value){
+            C = value & 0x80;
+            Z = value & 0x40;
+            I = value & 0x20;
+            D = value & 0x10;
+            B = value & 0x08;
+            _ = value & 0x04;
+            V = value & 0x02;
+            N = value & 0x01;
+        }
     } Flags{};
 
     Register();
