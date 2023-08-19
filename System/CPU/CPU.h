@@ -25,6 +25,8 @@ public:
 private:
     std::unordered_map<uint8_t, std::function<void()>> instructions;
 
+    uint16_t cycles;
+
     Register* reg;
     Memory* memory;
 
@@ -32,6 +34,12 @@ private:
 
     uint8_t readNextByte();
     uint16_t readNextWord();
+
+    void pushByte(uint8_t value);
+    void pushWord(uint16_t value);
+
+    uint8_t popByte();
+    uint16_t popWord();
 
     void handleGroupOneInstructions();
     void handleGroupTwoInstructions();
@@ -53,82 +61,86 @@ private:
     uint16_t relMode();
 
     // Load Operations
-    void LDA(uint16_t value);
-    void LDX(uint16_t value);
-    void LDY(uint16_t value);
-    void STA(uint16_t value);
-    void STX(uint16_t value);
-    void STY(uint16_t value);
+    void LDA(uint16_t addr);
+    void LDX(uint16_t addr);
+    void LDY(uint16_t addr);
+    void STA(uint16_t addr);
+    void STX(uint16_t addr);
+    void STY(uint16_t addr);
 
     // Transfer Operations
-    void TAX(uint16_t value);
-    void TAY(uint16_t value);
-    void TSX(uint16_t value);
-    void TXA(uint16_t value);
-    void TXS(uint16_t value);
-    void TYA(uint16_t value);
+    void TAX();
+    void TAY();
+    void TSX();
+    void TXA();
+    void TXS();
+    void TYA();
 
     // Stack Operations
-    void PHA(uint16_t value);
-    void PHP(uint16_t value);
-    void PLA(uint16_t value);
-    void PLP(uint16_t value);
+    void PHA();
+    void PHP();
+    void PLA();
+    void PLP();
 
     // Shift Operations
-    void ASL(uint16_t value);
-    void LSR(uint16_t value);
-    void ROL(uint16_t value);
-    void ROR(uint16_t value);
+    void ASL(uint16_t addr);
+    void ASL_A();
+    void LSR(uint16_t addr);
+    void LSR_A();
+    void ROL(uint16_t addr);
+    void ROL_A();
+    void ROR(uint16_t addr);
+    void ROR_A();
 
     // Logic Operations
-    void AND(uint16_t value);
-    void BIT(uint16_t value);
-    void EOR(uint16_t value);
-    void ORA(uint16_t value);
+    void AND(uint16_t addr);
+    void BIT(uint16_t addr);
+    void EOR(uint16_t addr);
+    void ORA(uint16_t addr);
 
     // Arithmetic Operations
-    void ADC(uint16_t value);
-    void CMP(uint16_t value);
-    void CPX(uint16_t value);
-    void CPY(uint16_t value);
-    void SBC(uint16_t value);
+    void ADC(uint16_t addr);
+    void CMP(uint16_t addr);
+    void CPX(uint16_t addr);
+    void CPY(uint16_t addr);
+    void SBC(uint16_t addr);
 
     // Increment Operations
-    void DEC(uint16_t value);
-    void DEX(uint16_t value);
-    void DEY(uint16_t value);
-    void INC(uint16_t value);
-    void INX(uint16_t value);
-    void INY(uint16_t value);
+    void DEC(uint16_t addr);
+    void DEX();
+    void DEY();
+    void INC(uint16_t addr);
+    void INX();
+    void INY();
 
     // Control Operations
-    void BRK(uint16_t value);
-    void JMP(uint16_t value);
-    void JSR(uint16_t value);
-    void RTI(uint16_t value);
-    void RTS(uint16_t value);
+    void BRK();
+    void JMP(uint16_t addr);
+    void JSR(uint16_t addr);
+    void RTI();
+    void RTS();
 
     // Branch Operations
-    void BCC(uint16_t value);
-    void BCS(uint16_t value);
-    void BEQ(uint16_t value);
-    void BMI(uint16_t value);
-    void BNE(uint16_t value);
-    void BPL(uint16_t value);
-    void BVC(uint16_t value);
-    void BVS(uint16_t value);
+    void BCC(uint16_t addr);
+    void BCS(uint16_t addr);
+    void BEQ(uint16_t addr);
+    void BMI(uint16_t addr);
+    void BNE(uint16_t addr);
+    void BPL(uint16_t addr);
+    void BVC(uint16_t addr);
+    void BVS(uint16_t addr);
 
     // Flag Operations
-    void CLC(uint16_t value);
-    void CLD(uint16_t value);
-    void CLI(uint16_t value);
-    void CLV(uint16_t value);
-    void SEC(uint16_t value);
-    void SED(uint16_t value);
-    void SEI(uint16_t value);
+    void CLC();
+    void CLD();
+    void CLI();
+    void CLV();
+    void SEC();
+    void SED();
+    void SEI();
 
     // No Operation
-    void NOP(uint16_t value);
+    void NOP();
 
 };
 

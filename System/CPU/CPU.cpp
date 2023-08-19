@@ -29,92 +29,6 @@ void CPU::cpuStep() {
     instructions[currentOpcode]();
 }
 
-void CPU::parseOpcode() {
-    uint8_t cc = (currentOpcode & 0x03);
-    switch (cc) {
-        case 0x00:
-            break;
-        case 0x01:
-            handleGroupOneInstructions();
-            break;
-        case 0x02:
-            handleGroupTwoInstructions();
-            break;
-        case 0x03:
-            break;
-        default:
-            break;
-    }
-}
-
-void CPU::handleGroupOneInstructions() {
-    uint8_t aaa = (currentOpcode & 0xE0) >> 5;
-    uint8_t bbb = (currentOpcode & 0x1C) >> 2;
-
-    switch(aaa){
-        case 0x00:
-            ORA(bbb);
-            break;
-        case 0x01:
-            AND(bbb);
-            break;
-        case 0x02:
-            EOR(bbb);
-            break;
-        case 0x03:
-            ADC(bbb);
-            break;
-        case 0x04:
-            STA(bbb);
-            break;
-        case 0x05:
-            LDA(bbb);
-            break;
-        case 0x06:
-            CMP(bbb);
-            break;
-        case 0x07:
-            SBC(bbb);
-            break;
-        default:
-            break;
-    }
-}
-
-void CPU::handleGroupTwoInstructions() {
-    uint8_t aaa = (currentOpcode & 0xE0) >> 5;
-    uint8_t bbb = (currentOpcode & 0x1C) >> 2;
-
-    switch(aaa){
-        case 0x00:
-            ASL(bbb);
-            break;
-        case 0x01:
-            ROL(bbb);
-            break;
-        case 0x02:
-            LSR(bbb);
-            break;
-        case 0x03:
-            ROR(bbb);
-            break;
-        case 0x04:
-            STX(bbb);
-            break;
-        case 0x05:
-            LDX(bbb);
-            break;
-        case 0x06:
-            DEC(bbb);
-            break;
-        case 0x07:
-            INC(bbb);
-            break;
-        default:
-            break;
-    }
-}
-
 uint8_t CPU::readNextByte() {
     uint8_t byte = memory->readByte(reg->PC);
     reg->PC++;
@@ -126,6 +40,28 @@ uint16_t CPU::readNextWord() {
     uint8_t highByte = readNextByte();
     return static_cast<uint16_t>((highByte << 8) | lowByte);
 }
+
+void CPU::pushByte(uint8_t value) {
+    if(reg->SP <= 0x00) reg->SP = 0xFF;
+    else reg->SP--;
+    memory->writeByte(reg->SP + 0x0100, value);
+}
+void CPU::pushWord(uint16_t value) {
+    pushByte((value >> 8) & 0xFF);
+    pushByte(value & 0xFF);
+}
+
+uint8_t CPU::popByte() {
+    if(reg->SP >= 0xFF) reg->SP = 0x00;
+    else reg->SP++;
+    return memory->readByte(reg->SP + 0x0100);
+}
+uint16_t CPU::popWord() {
+    uint8_t lowByte = popByte();
+    uint8_t highByte = popByte();
+    return static_cast<uint16_t>((highByte << 8) | lowByte);
+}
+
 
 
 void CPU::printStatus() {
