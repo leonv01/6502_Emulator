@@ -11,6 +11,9 @@ CPU::CPU() {
     memory = new Memory();
     instructions = std::unordered_map<uint8_t, std::function<void()>>(256);
     defineInstructions();
+    enableTestPageExceed = false;
+    systemRun = true;
+    cycles = 0;
 }
 CPU::CPU(Memory *memory) {
     currentOpcode = 0;
@@ -18,15 +21,42 @@ CPU::CPU(Memory *memory) {
     this->memory = memory;
     instructions = std::unordered_map<uint8_t, std::function<void()>>(256);
     defineInstructions();
+    enableTestPageExceed = false;
+    systemRun = true;
+    cycles = 0;
 }
 
 CPU::~CPU(){
     delete reg;
 }
 
+void CPU::cpuRun() {
+    uint8_t opcode;
+
+    while(systemRun) {
+        uint32_t remaining = 500000;
+        auto startTime = std::chrono::high_resolution_clock::now();
+        while (remaining > 0) {
+
+            // Fetch next instruction
+            opcode = readNextByte();
+
+            // Execute instruction
+            instructions[opcode]();
+            remaining -= cycles;
+            reg->PC++;
+            cycles = 0;
+        }
+        auto endTime = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count();
+        std::cout << "Time taken: " << duration << " microseconds" << std::endl;
+    }
+}
+
 void CPU::cpuStep() {
     currentOpcode = readNextByte();
     instructions[currentOpcode]();
+    reg->PC++;
 }
 
 uint8_t CPU::readNextByte() {
@@ -65,7 +95,7 @@ uint16_t CPU::popWord() {
 
 
 void CPU::printStatus() {
-    std::cout << reg->toString();
+    std::cout << reg->toString() << "Cycle: " << static_cast<int>(cycles) << std::endl;
 }
 
 

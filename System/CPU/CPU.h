@@ -7,6 +7,7 @@
 
 #include <unordered_map>
 #include <functional>
+#include <chrono>
 #include "Register.h"
 #include "../Memory/Memory.h"
 
@@ -18,19 +19,19 @@ public:
     ~CPU();
 
     void cpuStep();
-    void parseOpcode();
+    void cpuRun();
 
     void printStatus();
 
 private:
-    std::unordered_map<uint8_t, std::function<void()>> instructions;
-
+    uint8_t currentOpcode;
     uint16_t cycles;
-
+    bool enableTestPageExceed;
+    bool systemRun;
     Register* reg;
     Memory* memory;
 
-    uint8_t currentOpcode;
+    std::unordered_map<uint8_t, std::function<void()>> instructions;
 
     uint8_t readNextByte();
     uint16_t readNextWord();
@@ -41,11 +42,8 @@ private:
     uint8_t popByte();
     uint16_t popWord();
 
-    void handleGroupOneInstructions();
-    void handleGroupTwoInstructions();
-    void handleGroupThreeInstructions();
-
     void defineInstructions();
+    bool checkPageExceed(uint16_t addr1, uint16_t addr2);
 
     uint16_t accMode();
     uint16_t immMode();
